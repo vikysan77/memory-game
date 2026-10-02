@@ -66,3 +66,14 @@ playfield.append(board);
 const app = createElementHelper("div", "app");
 app.append(header, stats, playfield);
 document.body.append(app);
+
+const dialog = createElementHelper("dialog", "modal");
+const modalTitle = createElementHelper("h2", "modal-title");
+const modalContent = createElementHelper("div", "modal-content");
+const modalPanel = createElementHelper("div", "modal-panel");
+
+modalTitle.id = "modal-title";
+dialog.setAttribute("aria-labelledby", "modal-title");
+modalPanel.append(modalTitle, modalContent);
+dialog.append(modalPanel);
+document.body.append(dialog);
