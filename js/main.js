@@ -77,3 +77,80 @@ dialog.setAttribute("aria-labelledby", "modal-title");
 modalPanel.append(modalTitle, modalContent);
 dialog.append(modalPanel);
 document.body.append(dialog);
+
+const IMAGE_FOLDER = "assets/cards";
+
+const CARD_TYPES = [
+    { id: "murloc", name: "Мурлок" },
+    { id: "dragon", name: "Дракон" },
+    { id: "deathknight", name: "Рыцарь смерти" },
+    { id: "mage", name: "Маг" },
+    { id: "orc", name: "Орк-воин" },
+    { id: "paladin", name: "Паладин" },
+    { id: "druid", name: "Друид" },
+    { id: "goblin", name: "Гоблин" },
+];
+
+function createPicture(fileName) {
+    const image = createElementHelper("img", "card-image");
+    image.src = IMAGE_FOLDER + "/" + fileName;
+    image.alt = "";
+    image.draggable = false;
+    return image;
+}
+
+function createCardButton(card) {
+    const button = createElementHelper("button", "card");
+    button.type = "button";
+    button.setAttribute("aria-label", "Закрытая карточка");
+
+    const inner = createElementHelper("span", "card-inner");
+
+    const back = createElementHelper("span", "card-face card-face-back");
+    back.setAttribute("aria-hidden", "true");
+    back.append(createPicture("card-back.jpg"));
+
+    const front = createElementHelper("span", "card-face card-face-front");
+    front.setAttribute("aria-hidden", "true");
+    front.append(createPicture(card.id + ".jpg"));
+
+    const name = createElementHelper("span", "card-name");
+    name.textContent = card.name;
+    front.append(name);
+
+    inner.append(back, front);
+    button.append(inner);
+    return button;
+}
+
+function drawBoard() {
+    const deck = [];
+
+    for (let i = 0; i < CARD_TYPES.length; i++) {
+        const type = CARD_TYPES[i];
+        deck.push({ id: type.id, name: type.name });
+        deck.push({ id: type.id, name: type.name });
+    }
+
+    const cards = [];
+
+    for (let i = 0; i < deck.length; i++) {
+        const card = {
+            id: deck[i].id,
+            name: deck[i].name,
+            isOpen: false,
+            isMatched: false,
+            button: createCardButton(deck[i]),
+        };
+
+        cards.push(card);
+    }
+
+    board.replaceChildren();
+
+    for (let i = 0; i < cards.length; i++) {
+
+        board.append(cards[i].button);
+    }
+}
+drawBoard();
