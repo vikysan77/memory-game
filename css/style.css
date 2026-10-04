@@ -249,6 +249,21 @@ button {
     -webkit-tap-highlight-color: transparent;
 }
 
+.card:not(.is-open):hover .card-inner {
+    translate: 0 -5px;
+}
+
+.card:not(.is-open):hover .card-face-back {
+    box-shadow:
+            0 0 0 2px #f1c75b,
+            0 0 22px rgba(241, 199, 91, 0.55),
+            0 10px 18px rgba(0, 0, 0, 0.6);
+}
+
+.card.is-open .card-inner {
+    transform: rotateY(180deg);
+}
+
 .card-inner {
     position: relative;
     display: block;
@@ -317,4 +332,60 @@ button {
 
 .card:not(.is-open):hover .card-face-back {
     box-shadow: 0 0 0 2px #f1c75b, 0 0 22px rgba(241, 199, 91, 0.55), 0 10px 18px rgba(0, 0, 0, 0.6);
+}
+
+.card.is-matched {
+    cursor: default;
+}
+
+.card.is-matched .card-face-front {
+    animation: matched-glow 0.9s ease 0.35s both;
+    box-shadow:
+            0 0 0 2px #f1c75b,
+            0 0 18px rgba(241, 199, 91, 0.6),
+            0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+.card.is-mismatch .card-face-front {
+    box-shadow:
+            0 0 0 2px #d8452f,
+            0 0 18px rgba(216, 69, 47, 0.7),
+            0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+.card.is-mismatch {
+    animation: shake 0.4s ease 0.45s;
+}
+
+@keyframes matched-glow {
+    0% {
+        filter: brightness(1);
+    }
+
+    40% {
+        filter: brightness(1.45) saturate(1.2);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    50% {
+        transform: translateX(4px);
+    }
+
+    75% {
+        transform: translateX(-2px);
+    }
 }

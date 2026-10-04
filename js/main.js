@@ -79,6 +79,15 @@ dialog.append(modalPanel);
 document.body.append(dialog);
 
 const IMAGE_FOLDER = "assets/cards";
+const PAIR_COUNT = 8;
+const CLOSE_DELAY = 1000;
+
+let moves = 0;
+let foundPairs = 0;
+let firstCard = null;
+let isLocked = false;
+let isFinished = false;
+let closeTimer = null;
 
 const CARD_TYPES = [
     { id: "murloc", name: "Мурлок" },
@@ -90,6 +99,31 @@ const CARD_TYPES = [
     { id: "druid", name: "Друид" },
     { id: "goblin", name: "Гоблин" },
 ];
+
+function shuffle(list) {
+    const copy = list.slice();
+
+    for (let i = copy.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        const temp = copy[i];
+        copy[i] = copy[randomIndex];
+        copy[randomIndex] = temp;
+    }
+
+    return copy;
+}
+
+function createShuffledDeck() {
+    const deck = [];
+
+    for (let i = 0; i < CARD_TYPES.length; i++) {
+        const type = CARD_TYPES[i];
+        deck.push({ id: type.id, name: type.name });
+        deck.push({ id: type.id, name: type.name });
+    }
+
+    return shuffle(deck);
+}
 
 function createPicture(fileName) {
     const image = createElementHelper("img", "card-image");
@@ -124,14 +158,7 @@ function createCardButton(card) {
 }
 
 function drawBoard() {
-    const deck = [];
-
-    for (let i = 0; i < CARD_TYPES.length; i++) {
-        const type = CARD_TYPES[i];
-        deck.push({ id: type.id, name: type.name });
-        deck.push({ id: type.id, name: type.name });
-    }
-
+    const deck = createShuffledDeck();
     const cards = [];
 
     for (let i = 0; i < deck.length; i++) {
@@ -149,8 +176,98 @@ function drawBoard() {
     board.replaceChildren();
 
     for (let i = 0; i < cards.length; i++) {
-
+        bindCardButton(cards[i]);
         board.append(cards[i].button);
     }
 }
-drawBoard();
+
+function startNewGame() {
+
+    if (closeTimer !== null) {
+        clearTimeout(closeTimer);
+        closeTimer = null;
+    }
+
+    moves = 0;
+    foundPairs = 0;
+    firstCard = null;
+    isLocked = false;
+    isFinished = false;
+
+    movesStat.value.textContent = "0";
+    pairsStat.value.textContent = "0 из " + PAIR_COUNT;
+    drawBoard();
+}
+
+newGameButton.addEventListener("click", function () {
+    startNewGame();
+});
+
+function bindCardButton(card) {
+    card.button.addEventListener("click", function () {
+        onCardClick(card);
+    });
+}
+
+function onCardClick(card) {
+    if (isFinished || isLocked || card.isOpen || card.isMatched) {
+        return;
+    }
+
+    openCard(card);
+
+    if (firstCard === null) {
+        firstCard = card;
+        return;
+    }
+
+    const previousCard = firstCard;
+    firstCard = null;
+
+    moves = moves + 1;
+    movesStat.value.textContent = String(moves);
+
+    if (previousCard.id === card.id) {
+        markFound(previousCard);
+        markFound(card);
+
+        foundPairs = foundPairs + 1;
+        pairsStat.value.textContent = foundPairs + " из " + PAIR_COUNT;
+
+        if (foundPairs === PAIR_COUNT) {
+            isFinished = true;
+        }
+
+        return;
+    }
+
+    isLocked = true;
+    previousCard.button.classList.add("is-mismatch");
+    card.button.classList.add("is-mismatch");
+
+    closeTimer = setTimeout(function () {
+        closeTimer = null;
+        closeCard(previousCard);
+        closeCard(card);
+        isLocked = false;
+    }, CLOSE_DELAY);
+}
+
+function openCard(card) {
+    card.isOpen = true;
+    card.button.classList.add("is-open");
+    card.button.setAttribute("aria-label", card.name);
+}
+
+function closeCard(card) {
+    card.isOpen = false;
+    card.button.classList.remove("is-open");
+    card.button.classList.remove("is-mismatch");
+    card.button.setAttribute("aria-label", "Закрытая карточка");
+}
+
+function markFound(card) {
+    card.isMatched = true;
+    card.button.classList.add("is-matched");
+    card.button.setAttribute("aria-label", "Найдена пара: " + card.name);
+}
