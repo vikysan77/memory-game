@@ -78,6 +78,23 @@ modalPanel.append(modalTitle, modalContent);
 dialog.append(modalPanel);
 document.body.append(dialog);
 
+function openModal(titleText, fillContent) {
+    modalTitle.textContent = titleText;
+    modalContent.replaceChildren();
+    fillContent(modalContent);
+    document.documentElement.classList.add("scroll-lock");
+
+    if (!dialog.open) {
+        dialog.showModal();
+    }
+}
+
+function closeModal() {
+    if (dialog.open) {
+        dialog.close();
+    }
+}
+
 const IMAGE_FOLDER = "assets/cards";
 const PAIR_COUNT = 8;
 const CLOSE_DELAY = 1000;
@@ -236,6 +253,7 @@ function onCardClick(card) {
 
         if (foundPairs === PAIR_COUNT) {
             isFinished = true;
+            openWinModal()
         }
 
         return;
@@ -270,4 +288,37 @@ function markFound(card) {
     card.isMatched = true;
     card.button.classList.add("is-matched");
     card.button.setAttribute("aria-label", "Найдена пара: " + card.name);
+}
+
+function openWinModal() {
+    openModal("Победа!", function (container) {
+        const text = createElementHelper("p", "modal-text");
+        text.textContent = "Все пары найдены. Барды Азерота сложат о тебе песню.";
+
+        const score = createElementHelper("p", "modal-score");
+
+        const scoreLabel = createElementHelper("span", "modal-score-label");
+        scoreLabel.textContent = "Ходов";
+
+        const scoreValue = createElementHelper("span", "modal-score-value");
+        scoreValue.textContent = String(moves);
+
+        score.append(scoreLabel, scoreValue);
+
+        const actions = createElementHelper("div", "modal-actions");
+        const againButton = createButton("Новая игра", "button button-gold");
+        const closeButton = createButton("Закрыть", "button button-stone");
+
+        againButton.addEventListener("click", function () {
+            closeModal();
+            startNewGame();
+        });
+
+        closeButton.addEventListener("click", function () {
+            closeModal();
+        });
+
+        actions.append(againButton, closeButton);
+        container.append(text, score, actions);
+    });
 }
