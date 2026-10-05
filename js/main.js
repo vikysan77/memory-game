@@ -78,6 +78,36 @@ modalPanel.append(modalTitle, modalContent);
 dialog.append(modalPanel);
 document.body.append(dialog);
 
+let pressStartedOnBackdrop = false;
+
+dialog.addEventListener("pointerdown", function (event) {
+    pressStartedOnBackdrop = event.target === dialog;
+});
+
+dialog.addEventListener("click", function (event) {
+    if (event.target === dialog && pressStartedOnBackdrop) {
+        closeModal();
+    }
+
+    pressStartedOnBackdrop = false;
+});
+
+dialog.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+    }
+});
+
+dialog.addEventListener("cancel", function (event) {
+    event.preventDefault();
+    closeModal();
+});
+
+dialog.addEventListener("close", function () {
+    document.documentElement.classList.remove("scroll-lock");
+});
+
 function openModal(titleText, fillContent) {
     modalTitle.textContent = titleText;
     modalContent.replaceChildren();
