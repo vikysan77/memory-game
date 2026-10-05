@@ -15,7 +15,7 @@ body {
 body {
     font-family: Philosopher, "Segoe UI", sans-serif;
     color: #f5e9cf;
-    background: linear-gradient(180deg, rgba(26, 18, 32, 0.28) 0%, rgba(26, 18, 32, 0.55) 100%), url("../assets/cards/background.jpg") center / cover no-repeat;
+    background: linear-gradient(180deg, rgba(26, 18, 32, 0.28) 0%, rgba(26, 18, 32, 0.55) 100%), url("../assets/images/background.jpg") center / cover no-repeat;
 }
 
 button {
