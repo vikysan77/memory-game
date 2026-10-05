@@ -480,3 +480,34 @@ button {
     gap: 0.8rem;
     margin-top: 1.3rem;
 }
+
+.leaders {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.05rem;
+}
+
+.leaders th,
+.leaders td {
+    padding: 0.42rem 0.4rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(125, 83, 20, 0.35);
+}
+
+.leaders th {
+    color: #8e1d12;
+    font-family: Forum, "Palatino Linotype", Georgia, serif;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-bottom-width: 2px;
+}
+
+.leaders tbody tr:first-child td {
+    font-weight: 700;
+}
+
+.leaders tbody tr:nth-child(even) {
+    background: rgba(125, 83, 20, 0.08);
+}

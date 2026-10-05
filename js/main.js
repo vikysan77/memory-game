@@ -199,7 +199,6 @@ function drawBoard() {
 }
 
 function startNewGame() {
-
     if (closeTimer !== null) {
         clearTimeout(closeTimer);
         closeTimer = null;
@@ -253,7 +252,7 @@ function onCardClick(card) {
 
         if (foundPairs === PAIR_COUNT) {
             isFinished = true;
-            openWinModal()
+            showWin()
         }
 
         return;
@@ -322,3 +321,150 @@ function openWinModal() {
         container.append(text, score, actions);
     });
 }
+
+const STORAGE_KEY = "memory-game-leaders";
+const MAX_LEADERS = 10;
+
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return day + "." + month + "." + year;
+}
+
+function isSavedGame(item) {
+    return (
+        Number.isInteger(item?.moves) &&
+        item.moves > 0 &&
+        typeof item?.timestamp === "number" &&
+        typeof item?.date === "string"
+    );
+}
+
+function compareGames(a, b) {
+    if (a.moves !== b.moves) {
+        return a.moves - b.moves;
+    }
+
+    return a.timestamp - b.timestamp;
+}
+
+function getLeaders() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+        return [];
+    }
+
+    let parsed;
+
+    try {
+        parsed = JSON.parse(raw);
+    } catch (error) {
+        return [];
+    }
+
+    if (!Array.isArray(parsed)) {
+        return [];
+    }
+
+    const games = [];
+
+    for (let i = 0; i < parsed.length; i++) {
+        if (isSavedGame(parsed[i])) {
+            games.push(parsed[i]);
+        }
+    }
+
+    games.sort(compareGames);
+    return games.slice(0, MAX_LEADERS);
+}
+
+function saveLeader(movesCount) {
+    const games = getLeaders();
+    const now = new Date();
+
+    games.push({
+        moves: movesCount,
+        timestamp: now.getTime(),
+        date: formatDate(now),
+    });
+
+    games.sort(compareGames);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(games.slice(0, MAX_LEADERS)));
+}
+
+function showWin() {
+    try {
+        saveLeader(moves);
+    } catch (error) {}
+
+    openWinModal();
+}
+
+function createLeadersTable(leaders) {
+    const leadersTable = createElementHelper("table", "leaders");
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    const titles = ["Место", "Ходы", "Дата"];
+
+    for (let i = 0; i < titles.length; i++) {
+        const th = document.createElement("th");
+        th.textContent = titles[i];
+        th.setAttribute("scope", "col");
+        headRow.append(th);
+    }
+
+    thead.append(headRow);
+
+    const tbody = document.createElement("tbody");
+
+    for (let i = 0; i < leaders.length; i++) {
+        const row = document.createElement("tr");
+
+        const placeCell = document.createElement("td");
+        placeCell.textContent = String(i + 1);
+
+        const movesCell = document.createElement("td");
+        movesCell.textContent = String(leaders[i].moves);
+
+        const dateCell = document.createElement("td");
+        dateCell.textContent = leaders[i].date;
+
+        row.append(placeCell, movesCell, dateCell);
+        tbody.append(row);
+    }
+
+    leadersTable.append(thead, tbody);
+    return leadersTable;
+}
+
+function openLeadersModal() {
+    openModal("Таблица лидеров", function (container) {
+        const leaders = getLeaders();
+
+        if (leaders.length === 0) {
+            const emptyText = createElementHelper("p", "modal-text");
+            emptyText.textContent = "Пока нет результатов";
+            container.append(emptyText);
+        } else {
+            container.append(createLeadersTable(leaders));
+        }
+
+        const actions = createElementHelper("div", "modal-actions");
+        const closeButton = createButton("Закрыть", "button button-gold");
+
+        closeButton.addEventListener("click", function () {
+            closeModal();
+        });
+
+        actions.append(closeButton);
+        container.append(actions);
+    });
+}
+
+leadersButton.addEventListener("click", function () {
+    openLeadersModal();
+});
+
+startNewGame();
